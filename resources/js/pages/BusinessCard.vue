@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Youtube, UserPlus } from 'lucide-vue-next';
 
 type Employee = {
-    uuid: string;
+    short_id: string;
     first_name: string;
     last_name: string;
     full_name: string;

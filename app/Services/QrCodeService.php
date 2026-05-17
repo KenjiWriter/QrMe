@@ -11,17 +11,17 @@ class QrCodeService
 {
     /**
      * Generate a QR PNG for the employee and persist it to the public disk.
-     * Returns the storage-relative path (e.g. "employees/qrcodes/{uuid}.png").
+     * Returns the storage-relative path (e.g. "employees/qrcodes/{short_id}.png").
      */
     public function generateForEmployee(Employee $employee, int $size = 512): string
     {
         $renderer = new GDLibRenderer($size);
         $writer = new Writer($renderer);
 
-        $publicUrl = url('/'.$employee->uuid);
+        $publicUrl = url('/p/'.$employee->short_id);
         $png = $writer->writeString($publicUrl);
 
-        $path = 'employees/qrcodes/'.$employee->uuid.'.png';
+        $path = 'employees/qrcodes/'.$employee->short_id.'.png';
         Storage::disk('public')->put($path, $png);
 
         return $path;

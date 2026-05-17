@@ -15,12 +15,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
 
-// Public business card routes (UUID-based) — MUST be declared last
-// so the wildcard does not shadow named routes above.
-Route::get('/{employee}/vcard', [PublicCardController::class, 'downloadVCard'])
-    ->where('employee', '[0-9a-fA-F-]{36}')
+// Public business card routes. Short-id based, prefixed with /p/ so the
+// wildcard cannot shadow any other named routes.
+Route::get('/p/{employee}/vcard', [PublicCardController::class, 'downloadVCard'])
+    ->where('employee', '[A-Za-z0-9]{6,16}')
     ->name('card.vcard');
 
-Route::get('/{employee}', [PublicCardController::class, 'show'])
-    ->where('employee', '[0-9a-fA-F-]{36}')
+Route::get('/p/{employee}', [PublicCardController::class, 'show'])
+    ->where('employee', '[A-Za-z0-9]{6,16}')
     ->name('card.show');

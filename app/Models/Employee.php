@@ -5,14 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Employee extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'uuid',
+        'short_id',
         'first_name',
         'last_name',
         'job_title',
@@ -31,15 +30,26 @@ class Employee extends Model
     protected static function booted(): void
     {
         static::creating(function (self $employee): void {
-            if (empty($employee->uuid)) {
-                $employee->uuid = (string) Str::uuid();
+            if (empty($employee->short_id)) {
+                $employee->short_id = self::generateUniqueShortId();
             }
         });
     }
 
+    public static function generateUniqueShortId(int $length = 12): string
+    {
+        do {
+            // 12 lowercase hex chars (matches the uniqid() style, e.g. "673f0077859c").
+            $candidate = bin2hex(random_bytes((int) ceil($length / 2)));
+            $candidate = substr($candidate, 0, $length);
+        } while (self::withTrashed()->where('short_id', $candidate)->exists());
+
+        return $candidate;
+    }
+
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'short_id';
     }
 
     public function location(): BelongsTo
@@ -64,6 +74,6 @@ class Employee extends Model
 
     public function getPublicUrlAttribute(): string
     {
-        return url('/'.$this->uuid);
+        return url('/p/'.$this->short_id);
     }
 }

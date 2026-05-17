@@ -17,7 +17,7 @@ class PublicCardController extends Controller
 
         return Inertia::render('BusinessCard', [
             'employee' => [
-                'uuid' => $employee->uuid,
+                'short_id' => $employee->short_id,
                 'first_name' => $employee->first_name,
                 'last_name' => $employee->last_name,
                 'full_name' => $employee->full_name,
@@ -40,7 +40,7 @@ class PublicCardController extends Controller
                 'name' => $settings->company_name,
                 'vat_id' => $settings->vat_id,
             ],
-            'vcardUrl' => url('/'.$employee->uuid.'/vcard'),
+            'vcardUrl' => url('/p/'.$employee->short_id.'/vcard'),
         ]);
     }
 
