@@ -24,7 +24,7 @@ class QrCodeService
         $renderer = new GDLibRenderer($size, margin: 0, fill: $fill);
         $writer = new Writer($renderer);
 
-        $publicUrl = url('/p/'.$employee->short_id);
+        $publicUrl = url('/qr/'.$employee->short_id);
         $png = $writer->writeString($publicUrl);
 
         $path = 'employees/qrcodes/'.$employee->short_id.'.png';

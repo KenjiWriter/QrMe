@@ -30,6 +30,7 @@ export default {
         empty: 'Brak pracowników.',
         confirm_delete: 'Usunąć pracownika {name}?',
         download_qr: 'Pobierz QR',
+        scans: 'Skanowania: {count}',
         breadcrumb: 'Pracownicy',
         breadcrumb_new: 'Nowy',
         breadcrumb_edit: 'Edycja',

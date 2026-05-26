@@ -151,6 +151,7 @@ class EmployeeController extends Controller
             'photo_url' => $employee->photo_url,
             'qr_code_url' => $employee->qr_code_url,
             'public_url' => $employee->public_url,
+            'scan_count' => $employee->scan_count ?? 0,
             'location_id' => $employee->location_id,
             'location' => $employee->location,
             'facebook_url' => $employee->facebook_url,

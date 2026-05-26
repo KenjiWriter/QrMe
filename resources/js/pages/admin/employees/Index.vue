@@ -13,6 +13,7 @@ type Employee = {
     photo_url: string | null;
     qr_code_url: string | null;
     public_url: string;
+    scan_count: number;
     location: { name: string } | null;
 };
 
@@ -83,6 +84,10 @@ function destroy(emp: Employee) {
                         <a :href="emp.qr_code_url" download class="text-muted-foreground hover:underline">
                             {{ t('employees.download_qr') }}
                         </a>
+                        <span class="text-muted-foreground text-xs flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            {{ t('employees.scans', { count: emp.scan_count }) }}
+                        </span>
                     </div>
                 </div>
 

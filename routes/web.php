@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PublicCardController;
+use App\Http\Controllers\QrScanController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -20,3 +21,9 @@ Route::get('/p/{employee}/vcard', [PublicCardController::class, 'downloadVCard']
 Route::get('/p/{employee}', [PublicCardController::class, 'show'])
     ->where('employee', '[A-Za-z0-9]{6,16}')
     ->name('card.show');
+
+// QR code scan endpoint — only hit when a physical QR code is scanned.
+// Increments the scan counter then redirects to the public card page.
+Route::get('/qr/{shortId}', [QrScanController::class, 'scan'])
+    ->where('shortId', '[A-Za-z0-9]{6,16}')
+    ->name('card.scan');
