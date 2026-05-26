@@ -3,6 +3,8 @@ import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
+    Briefcase,
+    ChevronRight,
     Facebook,
     Instagram,
     Linkedin,
@@ -45,10 +47,10 @@ const initials = computed(() =>
 
 const socials = computed(() =>
     [
-        { url: props.employee.facebook_url, icon: Facebook, label: 'Facebook' },
-        { url: props.employee.instagram_url, icon: Instagram, label: 'Instagram' },
-        { url: props.employee.linkedin_url, icon: Linkedin, label: 'LinkedIn' },
-        { url: props.employee.youtube_url, icon: Youtube, label: 'YouTube' },
+        { url: props.employee.facebook_url, icon: Facebook, label: 'Facebook', bg: '#1877F2' },
+        { url: props.employee.instagram_url, icon: Instagram, label: 'Instagram', bg: '#E1306C' },
+        { url: props.employee.linkedin_url, icon: Linkedin, label: 'LinkedIn', bg: '#0077B5' },
+        { url: props.employee.youtube_url, icon: Youtube, label: 'YouTube', bg: '#FF0000' },
     ].filter((s) => !!s.url),
 );
 </script>
@@ -56,138 +58,196 @@ const socials = computed(() =>
 <template>
     <Head :title="props.employee.full_name" />
 
-    <div class="min-h-svh w-full bg-white text-slate-900">
-        <!-- Orange header banner -->
-        <header class="relative w-full bg-orange-500 h-44 sm:h-56">
+    <div class="min-h-svh bg-white text-slate-900">
+        <!-- Orange hero with wave bottom -->
+        <section class="relative bg-orange-500 pb-16">
+            <!-- Locale switcher -->
             <div class="absolute top-3 right-3 z-10">
                 <LocaleSwitcher variant="floating" />
             </div>
 
-            <!-- Avatar overlapping the bottom edge -->
-            <div class="absolute left-1/2 -bottom-14 -translate-x-1/2">
+            <!-- Avatar + name + title -->
+            <div class="flex flex-col items-center pt-10 pb-6 px-6">
                 <img
                     v-if="props.employee.photo_url"
                     :src="props.employee.photo_url"
                     :alt="props.employee.full_name"
-                    class="h-28 w-28 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-white shadow-lg"
+                    class="h-36 w-36 rounded-full object-cover border-4 border-white shadow-lg"
                 />
                 <div
                     v-else
-                    class="h-28 w-28 sm:h-32 sm:w-32 rounded-full bg-orange-100 border-4 border-white shadow-lg flex items-center justify-center text-3xl font-semibold text-orange-600"
+                    class="h-36 w-36 rounded-full bg-white/30 border-4 border-white shadow-lg flex items-center justify-center text-4xl font-bold text-white"
                 >
                     {{ initials }}
                 </div>
-            </div>
-        </header>
-
-        <!-- Body -->
-        <main class="px-5 sm:px-8 pt-20 pb-10 flex flex-col gap-6 max-w-2xl mx-auto w-full">
-            <!-- Name + title -->
-            <section class="text-center">
-                <h1 class="text-2xl font-semibold tracking-tight">
+                <h1 class="mt-4 text-2xl font-bold text-slate-900 text-center">
                     {{ props.employee.full_name }}
                 </h1>
-                <p v-if="props.employee.job_title" class="mt-1 text-base text-slate-600">
+                <p
+                    v-if="props.employee.job_title"
+                    class="mt-1 text-sm text-slate-700 text-center px-6 leading-relaxed"
+                >
                     {{ props.employee.job_title }}
                 </p>
-                <p v-if="props.company.name" class="mt-1 text-sm font-medium text-orange-600">
-                    {{ props.company.name }}
-                </p>
-            </section>
+            </div>
 
-            <!-- Bio -->
-            <p
-                v-if="props.employee.bio"
-                class="text-sm leading-relaxed text-slate-700 whitespace-pre-line text-center"
-            >
-                {{ props.employee.bio }}
-            </p>
-
-            <!-- Primary action (Add contact) -->
-            <a
-                :href="props.vcardUrl"
-                class="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white px-5 py-4 text-base font-semibold shadow-md active:scale-[0.99] transition"
-            >
-                <UserPlus class="h-5 w-5" />
-                {{ t('card.add_contact') }}
-            </a>
-
-            <!-- Secondary actions grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <a
-                    :href="`mailto:${props.employee.email}`"
-                    class="flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-3.5 text-sm font-medium active:scale-[0.99] transition"
+            <!-- Wave: white fill creates smooth orange → white transition -->
+            <div class="absolute bottom-0 left-0 right-0 leading-none">
+                <svg
+                    viewBox="0 0 1440 80"
+                    preserveAspectRatio="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-full h-16"
                 >
-                    <Mail class="h-4 w-4" />
-                    {{ t('card.email') }}
-                </a>
+                    <path fill="white" d="M0,60 C360,0 1080,0 1440,60 L1440,80 L0,80 Z" />
+                </svg>
+            </div>
+
+            <!-- Quick-action icon buttons sitting on the wave -->
+            <div class="absolute -bottom-7 inset-x-0 flex justify-center gap-5 z-10">
                 <a
                     v-if="props.employee.phone"
                     :href="`tel:${props.employee.phone}`"
-                    class="flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-3.5 text-sm font-medium active:scale-[0.99] transition"
+                    :aria-label="t('card.phone')"
+                    class="h-14 w-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
                 >
-                    <Phone class="h-4 w-4" />
-                    {{ t('card.phone') }}
+                    <Phone class="h-5 w-5" />
+                </a>
+                <a
+                    :href="`mailto:${props.employee.email}`"
+                    :aria-label="t('card.email')"
+                    class="h-14 w-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
+                >
+                    <Mail class="h-5 w-5" />
                 </a>
                 <a
                     v-if="props.employee.location"
                     :href="props.employee.location.maps_url"
                     target="_blank"
                     rel="noopener"
-                    class="flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3.5 text-sm font-medium active:scale-[0.99] transition"
+                    :aria-label="t('card.maps')"
+                    class="h-14 w-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
                 >
-                    <MapPin class="h-4 w-4" />
-                    {{ t('card.maps') }}
+                    <MapPin class="h-5 w-5" />
                 </a>
             </div>
+        </section>
 
-            <!-- Social links -->
-            <div v-if="socials.length" class="flex justify-center gap-4 pt-2">
-                <a
-                    v-for="s in socials"
-                    :key="s.label"
-                    :href="s.url!"
-                    target="_blank"
-                    rel="noopener"
-                    :aria-label="s.label"
-                    class="h-12 w-12 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center text-orange-600 active:scale-95 transition"
-                >
-                    <component :is="s.icon" class="h-5 w-5" />
-                </a>
-            </div>
-
-            <!-- Location -->
-            <section
-                v-if="props.employee.location"
-                class="mt-2 rounded-xl border border-slate-200 px-5 py-4 text-sm"
+        <!-- Main body -->
+        <main class="pt-14 pb-10 px-5 max-w-lg mx-auto flex flex-col gap-5">
+            <!-- Add contact CTA -->
+            <a
+                :href="props.vcardUrl"
+                class="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white py-4 text-base font-semibold shadow transition active:scale-[0.99]"
             >
-                <div class="flex items-start gap-3">
-                    <MapPin class="h-5 w-5 text-orange-500 flex-none mt-0.5" />
+                <UserPlus class="h-5 w-5" />
+                {{ t('card.add_contact') }}
+            </a>
+
+            <!-- Company name + VAT -->
+            <div
+                v-if="props.company.name || props.company.vat_id"
+                class="text-center text-sm text-slate-500 leading-relaxed"
+            >
+                <div v-if="props.company.name">{{ props.company.name }}</div>
+                <div v-if="props.company.vat_id">VAT EU: {{ props.company.vat_id }}</div>
+            </div>
+
+            <!-- Contact details list -->
+            <div class="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden">
+                <a
+                    v-if="props.employee.phone"
+                    :href="`tel:${props.employee.phone}`"
+                    class="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition"
+                >
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none">
+                        <Phone class="h-4 w-4 text-slate-500" />
+                    </div>
                     <div>
-                        <div class="font-semibold text-slate-900">
-                            {{ props.employee.location.name }}
-                        </div>
-                        <div class="text-slate-600 mt-0.5">
+                        <div class="text-xs text-slate-500">{{ t('card.phone') }}</div>
+                        <div class="text-sm font-medium text-slate-900">{{ props.employee.phone }}</div>
+                    </div>
+                </a>
+
+                <a
+                    :href="`mailto:${props.employee.email}`"
+                    class="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition"
+                >
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none">
+                        <Mail class="h-4 w-4 text-slate-500" />
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">{{ t('card.email') }}</div>
+                        <div class="text-sm font-medium text-slate-900">{{ props.employee.email }}</div>
+                    </div>
+                </a>
+
+                <div v-if="props.employee.location" class="flex items-start gap-4 px-4 py-4">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none mt-0.5">
+                        <MapPin class="h-4 w-4 text-slate-500" />
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">{{ t('card.location_label') }}</div>
+                        <div class="text-sm font-medium text-slate-900">
                             {{ props.employee.location.full_address }}
                         </div>
+                        <a
+                            :href="props.employee.location.maps_url"
+                            target="_blank"
+                            rel="noopener"
+                            class="mt-2 inline-block text-xs px-3 py-1 rounded-full bg-teal-50 text-teal-700 font-medium hover:bg-teal-100 transition"
+                        >
+                            {{ t('card.show_on_map') }}
+                        </a>
                     </div>
                 </div>
-            </section>
 
-            <!-- Company footer -->
-            <footer
-                v-if="props.company.name || props.company.vat_id"
-                class="mt-2 border-t border-slate-100 pt-4 text-center text-xs text-slate-500"
+                <div v-if="props.company.name" class="flex items-center gap-4 px-4 py-4">
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none">
+                        <Briefcase class="h-4 w-4 text-slate-500" />
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">{{ props.company.name }}</div>
+                        <div class="text-sm font-medium text-slate-900">{{ props.employee.job_title }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bio -->
+            <p
+                v-if="props.employee.bio"
+                class="text-sm leading-relaxed text-slate-600 whitespace-pre-line"
             >
-                <div v-if="props.company.name" class="font-medium text-slate-700">
-                    {{ props.company.name }}
-                </div>
-                <div v-if="props.company.vat_id" class="mt-0.5">
-                    {{ t('card.vat_id') }}: {{ props.company.vat_id }}
-                </div>
-            </footer>
+                {{ props.employee.bio }}
+            </p>
 
-            <p class="text-center text-xs text-slate-400 mt-2">
+            <!-- Social links -->
+            <div v-if="socials.length">
+                <h2 class="text-base font-semibold text-slate-900 mb-3">
+                    {{ t('card.find_me_on') }}
+                </h2>
+                <div class="divide-y divide-slate-100 rounded-2xl border border-slate-100 overflow-hidden">
+                    <a
+                        v-for="s in socials"
+                        :key="s.label"
+                        :href="s.url!"
+                        target="_blank"
+                        rel="noopener"
+                        class="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition"
+                    >
+                        <div
+                            class="h-10 w-10 rounded-full flex items-center justify-center flex-none"
+                            :style="{ background: s.bg }"
+                        >
+                            <component :is="s.icon" class="h-5 w-5 text-white" />
+                        </div>
+                        <span class="text-sm font-medium text-slate-900 flex-1">{{ s.label }}</span>
+                        <ChevronRight class="h-4 w-4 text-slate-400 flex-none" />
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-center text-xs text-slate-400 pt-2">
                 {{ t('card.powered_by') }}
             </p>
         </main>

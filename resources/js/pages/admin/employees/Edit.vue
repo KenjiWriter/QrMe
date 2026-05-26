@@ -7,6 +7,7 @@ import Heading from '@/components/Heading.vue';
 const props = defineProps<{
     employee: {
         id: number;
+        short_id: string;
         uuid: string;
         first_name: string;
         last_name: string;

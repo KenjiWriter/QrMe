@@ -107,8 +107,11 @@ export default {
         email: 'E-mail',
         phone: 'Telefon',
         maps: 'Mapa',
-        add_contact: 'Dodaj do kontaktów',
+        add_contact: 'Dodaj kontakt',
         powered_by: 'Powered by QrMe',
         vat_id: 'NIP',
+        location_label: 'Lokalizacja',
+        show_on_map: 'Pokaż na mapie',
+        find_me_on: 'Znajdź mnie na',
     },
 } as const;

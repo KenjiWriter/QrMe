@@ -12,6 +12,7 @@ type LocationOption = { id: number; name: string };
 
 type EmployeeData = {
     id?: number;
+    short_id?: string;
     first_name: string;
     last_name: string;
     job_title: string;
@@ -85,8 +86,8 @@ function onPhotoChange(e: Event) {
 }
 
 function submit() {
-    if (isEdit.value && props.employee?.id) {
-        form.post(`/admin/employees/${props.employee.id}`, { forceFormData: true });
+    if (isEdit.value && props.employee?.short_id) {
+        form.post(`/admin/employees/${props.employee.short_id}`, { forceFormData: true });
     } else {
         form.post('/admin/employees', { forceFormData: true });
     }

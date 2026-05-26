@@ -109,5 +109,8 @@ export default {
         add_contact: 'Add to contacts',
         powered_by: 'Powered by QrMe',
         vat_id: 'VAT ID',
+        location_label: 'Location',
+        show_on_map: 'Show on map',
+        find_me_on: 'Find me on',
     },
 } as const;
