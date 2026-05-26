@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Building2, FolderGit2, LayoutGrid, Settings2, Users } from 'lucide-vue-next';
+import { BookOpen, Building2, FolderGit2, Settings2, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue';
 import {
     Sidebar,
     SidebarContent,
@@ -14,31 +17,27 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const { t } = useI18n();
+
+const mainNavItems = computed<NavItem[]>(() => [
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Employees',
+        title: t('nav.employees'),
         href: '/admin/employees',
         icon: Users,
     },
     {
-        title: 'Locations',
+        title: t('nav.locations'),
         href: '/admin/locations',
         icon: Building2,
     },
     {
-        title: 'Global settings',
+        title: t('nav.settings'),
         href: '/admin/settings',
         icon: Settings2,
     },
-];
+]);
 
 const footerNavItems: NavItem[] = [
     {
@@ -60,7 +59,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link href="/admin/employees">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
@@ -73,6 +72,7 @@ const footerNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
+            <LocaleSwitcher />
             <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,47 +91,47 @@ function submit() {
         form.post('/admin/employees', { forceFormData: true });
     }
 }
+
+const { t } = useI18n();
 </script>
 
 <template>
     <form @submit.prevent="submit" class="grid max-w-3xl gap-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="grid gap-2">
-                <Label for="first_name">First name</Label>
+                <Label for="first_name">{{ t('employees.fields.first_name') }}</Label>
                 <Input id="first_name" v-model="form.first_name" required autofocus />
                 <InputError :message="form.errors.first_name" />
             </div>
             <div class="grid gap-2">
-                <Label for="last_name">Last name</Label>
+                <Label for="last_name">{{ t('employees.fields.last_name') }}</Label>
                 <Input id="last_name" v-model="form.last_name" required />
                 <InputError :message="form.errors.last_name" />
             </div>
         </div>
 
         <div class="grid gap-2">
-            <Label for="job_title">Job title</Label>
+            <Label for="job_title">{{ t('employees.fields.job_title') }}</Label>
             <Input id="job_title" v-model="form.job_title" required />
             <InputError :message="form.errors.job_title" />
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="grid gap-2">
-                <Label for="email">Email</Label>
+                <Label for="email">{{ t('employees.fields.email') }}</Label>
                 <Input id="email" type="email" v-model="form.email" @input="onEmailInput" required />
-                <p class="text-xs text-muted-foreground">
-                    Auto-generated. Override if needed.
-                </p>
+                <p class="text-xs text-muted-foreground">{{ t('employees.email_hint') }}</p>
                 <InputError :message="form.errors.email" />
             </div>
             <div class="grid gap-2">
-                <Label for="phone">Phone</Label>
+                <Label for="phone">{{ t('employees.fields.phone') }}</Label>
                 <Input id="phone" v-model="form.phone" placeholder="+48 ..." />
                 <InputError :message="form.errors.phone" />
             </div>
         </div>
 
         <div class="grid gap-2">
-            <Label for="bio">Bio / short description</Label>
+            <Label for="bio">{{ t('employees.fields.bio') }}</Label>
             <textarea
                 id="bio"
                 v-model="form.bio"
@@ -142,7 +143,7 @@ function submit() {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="grid gap-2">
-                <Label for="photo">Profile photo</Label>
+                <Label for="photo">{{ t('employees.fields.photo') }}</Label>
                 <Input id="photo" type="file" accept="image/*" @change="onPhotoChange" />
                 <img
                     v-if="employee?.photo_url"
@@ -152,13 +153,13 @@ function submit() {
                 <InputError :message="form.errors.photo" />
             </div>
             <div class="grid gap-2">
-                <Label for="location_id">Location</Label>
+                <Label for="location_id">{{ t('employees.fields.location') }}</Label>
                 <select
                     id="location_id"
                     v-model="form.location_id"
                     class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
                 >
-                    <option :value="null">— None —</option>
+                    <option :value="null">{{ t('employees.fields.none_location') }}</option>
                     <option v-for="l in locations" :key="l.id" :value="l.id">{{ l.name }}</option>
                 </select>
                 <InputError :message="form.errors.location_id" />
@@ -166,24 +167,24 @@ function submit() {
         </div>
 
         <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-            <legend class="px-2 text-sm font-medium">Social links</legend>
+            <legend class="px-2 text-sm font-medium">{{ t('employees.fields.social_links') }}</legend>
             <div class="grid gap-2">
-                <Label for="facebook_url">Facebook</Label>
+                <Label for="facebook_url">{{ t('employees.fields.facebook') }}</Label>
                 <Input id="facebook_url" v-model="form.facebook_url" placeholder="https://facebook.com/..." />
                 <InputError :message="form.errors.facebook_url" />
             </div>
             <div class="grid gap-2">
-                <Label for="instagram_url">Instagram</Label>
+                <Label for="instagram_url">{{ t('employees.fields.instagram') }}</Label>
                 <Input id="instagram_url" v-model="form.instagram_url" placeholder="https://instagram.com/..." />
                 <InputError :message="form.errors.instagram_url" />
             </div>
             <div class="grid gap-2">
-                <Label for="linkedin_url">LinkedIn</Label>
+                <Label for="linkedin_url">{{ t('employees.fields.linkedin') }}</Label>
                 <Input id="linkedin_url" v-model="form.linkedin_url" placeholder="https://linkedin.com/in/..." />
                 <InputError :message="form.errors.linkedin_url" />
             </div>
             <div class="grid gap-2">
-                <Label for="youtube_url">YouTube</Label>
+                <Label for="youtube_url">{{ t('employees.fields.youtube') }}</Label>
                 <Input id="youtube_url" v-model="form.youtube_url" placeholder="https://youtube.com/@..." />
                 <InputError :message="form.errors.youtube_url" />
             </div>
@@ -192,7 +193,7 @@ function submit() {
         <div class="flex justify-end gap-2">
             <Button type="submit" :disabled="form.processing">
                 <Spinner v-if="form.processing" />
-                {{ isEdit ? 'Save changes' : 'Create employee' }}
+                {{ isEdit ? t('employees.save_changes') : t('employees.create_submit') }}
             </Button>
         </div>
     </form>

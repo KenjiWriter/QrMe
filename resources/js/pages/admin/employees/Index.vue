@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
 
@@ -16,6 +17,7 @@ type Employee = {
 };
 
 const props = defineProps<{ employees: Employee[] }>();
+const { t } = useI18n();
 
 defineOptions({
     layout: {
@@ -27,23 +29,23 @@ defineOptions({
 });
 
 function destroy(emp: Employee) {
-    if (!confirm(`Delete ${emp.full_name}?`)) return;
+    if (!confirm(t('employees.confirm_delete', { name: emp.full_name }))) return;
     router.delete(`/admin/employees/${emp.id}`, { preserveScroll: true });
 }
 </script>
 
 <template>
-    <Head title="Employees" />
+    <Head :title="t('employees.title')" />
 
     <div class="flex flex-col gap-6 p-4">
         <div class="flex items-center justify-between">
             <Heading
                 variant="small"
-                title="Employees"
-                description="Digital business cards. QR codes are generated automatically."
+                :title="t('employees.title')"
+                :description="t('employees.description')"
             />
             <Link href="/admin/employees/create">
-                <Button>Add employee</Button>
+                <Button>{{ t('employees.add') }}</Button>
             </Link>
         </div>
 
@@ -79,16 +81,16 @@ function destroy(emp: Employee) {
                             {{ emp.public_url }}
                         </a>
                         <a :href="emp.qr_code_url" download class="text-muted-foreground hover:underline">
-                            Download QR
+                            {{ t('employees.download_qr') }}
                         </a>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-2">
                     <Link :href="`/admin/employees/${emp.id}/edit`">
-                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">{{ t('common.edit') }}</Button>
                     </Link>
-                    <Button variant="destructive" size="sm" @click="destroy(emp)">Delete</Button>
+                    <Button variant="destructive" size="sm" @click="destroy(emp)">{{ t('common.delete') }}</Button>
                 </div>
             </div>
 
@@ -96,7 +98,7 @@ function destroy(emp: Employee) {
                 v-if="!props.employees.length"
                 class="col-span-full rounded-xl border border-dashed p-8 text-center text-muted-foreground"
             >
-                No employees yet.
+                {{ t('employees.empty') }}
             </div>
         </div>
     </div>

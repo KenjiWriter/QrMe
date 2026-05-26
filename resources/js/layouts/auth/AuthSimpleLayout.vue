@@ -1,12 +1,24 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { home } from '@/routes';
 
-defineProps<{
+const { t, te } = useI18n();
+
+const props = defineProps<{
     title?: string;
     description?: string;
 }>();
+
+// Allow auth pages to pass an i18n key (e.g. 'auth.login_title') OR a plain string.
+const resolvedTitle = computed(() =>
+    props.title && te(props.title) ? t(props.title) : (props.title ?? ''),
+);
+const resolvedDescription = computed(() =>
+    props.description && te(props.description) ? t(props.description) : (props.description ?? ''),
+);
 </script>
 
 <template>
@@ -27,12 +39,12 @@ defineProps<{
                                 class="size-9 fill-current text-[var(--foreground)] dark:text-white"
                             />
                         </div>
-                        <span class="sr-only">{{ title }}</span>
+                        <span class="sr-only">{{ resolvedTitle }}</span>
                     </Link>
                     <div class="space-y-2 text-center">
-                        <h1 class="text-xl font-medium">{{ title }}</h1>
+                        <h1 class="text-xl font-medium">{{ resolvedTitle }}</h1>
                         <p class="text-center text-sm text-muted-foreground">
-                            {{ description }}
+                            {{ resolvedDescription }}
                         </p>
                     </div>
                 </div>

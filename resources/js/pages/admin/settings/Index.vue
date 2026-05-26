@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import { Spinner } from '@/components/ui/spinner';
 const props = defineProps<{
     settings: { company_name: string | null; vat_id: string | null };
 }>();
+
+const { t } = useI18n();
 
 defineOptions({
     layout: {
@@ -31,24 +34,24 @@ function submit() {
 </script>
 
 <template>
-    <Head title="Global settings" />
+    <Head :title="t('settings.title')" />
 
     <div class="flex flex-col gap-6 p-4">
         <Heading
             variant="small"
-            title="Company details"
-            description="These details appear on every employee's public business card."
+            :title="t('settings.company_details')"
+            :description="t('settings.description')"
         />
 
         <form @submit.prevent="submit" class="grid max-w-xl gap-6">
             <div class="grid gap-2">
-                <Label for="company_name">Company name</Label>
+                <Label for="company_name">{{ t('settings.fields.company_name') }}</Label>
                 <Input id="company_name" v-model="form.company_name" required />
                 <InputError :message="form.errors.company_name" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="vat_id">VAT ID / NIP</Label>
+                <Label for="vat_id">{{ t('settings.fields.vat_id') }}</Label>
                 <Input id="vat_id" v-model="form.vat_id" required />
                 <InputError :message="form.errors.vat_id" />
             </div>
@@ -56,7 +59,7 @@ function submit() {
             <div>
                 <Button type="submit" :disabled="form.processing">
                     <Spinner v-if="form.processing" />
-                    Save settings
+                    {{ t('settings.save') }}
                 </Button>
             </div>
         </form>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ type Location = {
 };
 
 const props = defineProps<{ locations: Location[] }>();
+const { t } = useI18n();
 
 defineOptions({
     layout: {
@@ -84,38 +86,38 @@ function submit() {
 }
 
 function destroy(loc: Location) {
-    if (!confirm(`Delete location "${loc.name}"?`)) return;
+    if (!confirm(t('locations.confirm_delete', { name: loc.name }))) return;
     router.delete(`/admin/locations/${loc.id}`, { preserveScroll: true });
 }
 </script>
 
 <template>
-    <Head title="Locations" />
+    <Head :title="t('locations.title')" />
 
     <div class="flex flex-col gap-6 p-4">
         <div class="flex items-center justify-between">
             <Heading
                 variant="small"
-                title="Locations"
-                description="Manage company offices and addresses."
+                :title="t('locations.title')"
+                :description="t('locations.description')"
             />
-            <Button @click="openCreate">Add location</Button>
+            <Button @click="openCreate">{{ t('locations.add') }}</Button>
         </div>
 
         <div class="rounded-xl border border-sidebar-border/70 overflow-hidden">
             <table class="w-full text-sm">
                 <thead class="bg-muted/50 text-left">
                     <tr>
-                        <th class="px-4 py-3 font-medium">Name</th>
-                        <th class="px-4 py-3 font-medium">Address</th>
-                        <th class="px-4 py-3 font-medium">City</th>
-                        <th class="px-4 py-3 text-right font-medium">Actions</th>
+                        <th class="px-4 py-3 font-medium">{{ t('locations.fields.name') }}</th>
+                        <th class="px-4 py-3 font-medium">{{ t('locations.fields.address') }}</th>
+                        <th class="px-4 py-3 font-medium">{{ t('locations.fields.city') }}</th>
+                        <th class="px-4 py-3 text-right font-medium">{{ t('common.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="!props.locations.length">
                         <td colspan="4" class="px-4 py-8 text-center text-muted-foreground">
-                            No locations yet.
+                            {{ t('locations.empty') }}
                         </td>
                     </tr>
                     <tr
@@ -129,8 +131,8 @@ function destroy(loc: Location) {
                         </td>
                         <td class="px-4 py-3">{{ loc.postal_code }} {{ loc.city }}</td>
                         <td class="px-4 py-3 text-right space-x-2">
-                            <Button variant="outline" size="sm" @click="openEdit(loc)">Edit</Button>
-                            <Button variant="destructive" size="sm" @click="destroy(loc)">Delete</Button>
+                            <Button variant="outline" size="sm" @click="openEdit(loc)">{{ t('common.edit') }}</Button>
+                            <Button variant="destructive" size="sm" @click="destroy(loc)">{{ t('common.delete') }}</Button>
                         </td>
                     </tr>
                 </tbody>
@@ -140,25 +142,25 @@ function destroy(loc: Location) {
         <Dialog v-model:open="open">
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{{ editing ? 'Edit location' : 'New location' }}</DialogTitle>
-                    <DialogDescription>Address details used on employee business cards.</DialogDescription>
+                    <DialogTitle>{{ editing ? t('locations.edit') : t('locations.add') }}</DialogTitle>
+                    <DialogDescription>{{ t('locations.description') }}</DialogDescription>
                 </DialogHeader>
 
                 <form @submit.prevent="submit" class="grid gap-4">
                     <div class="grid gap-2">
-                        <Label for="name">Name</Label>
+                        <Label for="name">{{ t('locations.fields.name') }}</Label>
                         <Input id="name" v-model="form.name" required />
                         <InputError :message="form.errors.name" />
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
                         <div class="col-span-2 grid gap-2">
-                            <Label for="street">Street</Label>
+                            <Label for="street">{{ t('locations.fields.street') }}</Label>
                             <Input id="street" v-model="form.street" required />
                             <InputError :message="form.errors.street" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="building_number">Building no.</Label>
+                            <Label for="building_number">{{ t('locations.fields.building_number') }}</Label>
                             <Input id="building_number" v-model="form.building_number" required />
                             <InputError :message="form.errors.building_number" />
                         </div>
@@ -166,33 +168,33 @@ function destroy(loc: Location) {
 
                     <div class="grid grid-cols-3 gap-4">
                         <div class="grid gap-2">
-                            <Label for="apartment_number">Apt. no.</Label>
+                            <Label for="apartment_number">{{ t('locations.fields.apartment_number') }}</Label>
                             <Input id="apartment_number" v-model="form.apartment_number" />
                             <InputError :message="form.errors.apartment_number" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="postal_code">Postal code</Label>
+                            <Label for="postal_code">{{ t('locations.fields.postal_code') }}</Label>
                             <Input id="postal_code" v-model="form.postal_code" required />
                             <InputError :message="form.errors.postal_code" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="city">City</Label>
+                            <Label for="city">{{ t('locations.fields.city') }}</Label>
                             <Input id="city" v-model="form.city" required />
                             <InputError :message="form.errors.city" />
                         </div>
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="country">Country</Label>
+                        <Label for="country">{{ t('locations.fields.country') }}</Label>
                         <Input id="country" v-model="form.country" required />
                         <InputError :message="form.errors.country" />
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="open = false">Cancel</Button>
+                        <Button type="button" variant="outline" @click="open = false">{{ t('common.cancel') }}</Button>
                         <Button type="submit" :disabled="form.processing">
                             <Spinner v-if="form.processing" />
-                            {{ editing ? 'Save changes' : 'Create' }}
+                            {{ editing ? t('common.save') : t('common.create') }}
                         </Button>
                     </DialogFooter>
                 </form>

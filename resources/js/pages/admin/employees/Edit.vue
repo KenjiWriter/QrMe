@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import EmployeeForm from '@/components/admin/EmployeeForm.vue';
 import Heading from '@/components/Heading.vue';
 
@@ -26,6 +27,8 @@ const props = defineProps<{
     emailDomain: string;
 }>();
 
+const { t } = useI18n();
+
 defineOptions({
     layout: {
         breadcrumbs: [
@@ -38,13 +41,13 @@ defineOptions({
 </script>
 
 <template>
-    <Head :title="`Edit ${props.employee.first_name} ${props.employee.last_name}`" />
+    <Head :title="`${t('employees.edit_title')} — ${props.employee.first_name} ${props.employee.last_name}`" />
 
     <div class="flex flex-col gap-6 p-4">
         <Heading
             variant="small"
-            :title="`Edit ${props.employee.first_name} ${props.employee.last_name}`"
-            description="Update employee details. QR code stays the same."
+            :title="`${t('employees.edit_title')} — ${props.employee.first_name} ${props.employee.last_name}`"
+            :description="t('employees.edit_description')"
         />
         <div v-if="props.employee.qr_code_url" class="flex items-center gap-3 rounded-xl border p-3 max-w-md">
             <img :src="props.employee.qr_code_url" class="h-20 w-20" alt="QR" />
