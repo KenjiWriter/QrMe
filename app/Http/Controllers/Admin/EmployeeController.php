@@ -11,7 +11,6 @@ use App\Services\QrCodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -167,11 +166,29 @@ class EmployeeController extends Controller
     {
         $filename = 'employees/photos/' . \Illuminate\Support\Str::uuid() . '.jpg';
 
-        $image = Image::read($file)
-            ->cover(500, 500)
-            ->toJpeg(quality: 90);
+        [$origWidth, $origHeight] = getimagesize($file->getRealPath());
+        $size = min($origWidth, $origHeight);
+        $srcX = (int) (($origWidth - $size) / 2);
+        $srcY = (int) (($origHeight - $size) / 2);
 
-        Storage::disk('public')->put($filename, $image);
+        $mime = $file->getMimeType();
+        $source = match (true) {
+            str_contains($mime, 'png')  => imagecreatefrompng($file->getRealPath()),
+            str_contains($mime, 'webp') => imagecreatefromwebp($file->getRealPath()),
+            str_contains($mime, 'gif')  => imagecreatefromgif($file->getRealPath()),
+            default                     => imagecreatefromjpeg($file->getRealPath()),
+        };
+
+        $dest = imagecreatetruecolor(500, 500);
+        imagecopyresampled($dest, $source, 0, 0, $srcX, $srcY, 500, 500, $size, $size);
+        imagedestroy($source);
+
+        ob_start();
+        imagejpeg($dest, null, 90);
+        $imageData = (string) ob_get_clean();
+        imagedestroy($dest);
+
+        Storage::disk('public')->put($filename, $imageData);
 
         return $filename;
     }
