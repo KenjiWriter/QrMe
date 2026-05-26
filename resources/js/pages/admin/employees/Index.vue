@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 
 type Employee = {
     id: number;
+    short_id: string;
     uuid: string;
     full_name: string;
     job_title: string;
@@ -31,7 +32,7 @@ defineOptions({
 
 function destroy(emp: Employee) {
     if (!confirm(t('employees.confirm_delete', { name: emp.full_name }))) return;
-    router.delete(`/admin/employees/${emp.id}`, { preserveScroll: true });
+    router.delete(`/admin/employees/${emp.short_id}`, { preserveScroll: true });
 }
 </script>
 
@@ -92,7 +93,7 @@ function destroy(emp: Employee) {
                 </div>
 
                 <div class="flex justify-end gap-2">
-                    <Link :href="`/admin/employees/${emp.id}/edit`">
+                    <Link :href="`/admin/employees/${emp.short_id}/edit`">
                         <Button variant="outline" size="sm">{{ t('common.edit') }}</Button>
                     </Link>
                     <Button variant="destructive" size="sm" @click="destroy(emp)">{{ t('common.delete') }}</Button>

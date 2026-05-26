@@ -140,6 +140,7 @@ class EmployeeController extends Controller
     {
         return [
             'id' => $employee->id,
+            'short_id' => $employee->short_id,
             'uuid' => $employee->uuid,
             'first_name' => $employee->first_name,
             'last_name' => $employee->last_name,
