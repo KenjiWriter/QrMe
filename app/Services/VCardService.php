@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Employee;
 use App\Models\Setting;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class VCardService
@@ -51,6 +52,12 @@ class VCardService
 
         if ($employee->bio) {
             $lines[] = 'NOTE:'.$this->escape($employee->bio);
+        }
+
+        if ($employee->photo_path && Storage::disk('public')->exists($employee->photo_path)) {
+            $photoData = base64_encode((string) Storage::disk('public')->get($employee->photo_path));
+            $folded = rtrim(chunk_split($photoData, 74, "\r\n "), "\r\n ");
+            $lines[] = "PHOTO;ENCODING=b;TYPE=JPEG:\r\n ".$folded;
         }
 
         foreach (array_filter([
