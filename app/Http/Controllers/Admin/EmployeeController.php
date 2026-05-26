@@ -11,6 +11,7 @@ use App\Services\QrCodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -51,7 +52,7 @@ class EmployeeController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            $data['photo_path'] = $request->file('photo')->store('employees/photos', 'public');
+            $data['photo_path'] = $this->storePhoto($request->file('photo'));
         }
 
         $employee = Employee::create($data);
@@ -80,7 +81,7 @@ class EmployeeController extends Controller
             if ($employee->photo_path) {
                 Storage::disk('public')->delete($employee->photo_path);
             }
-            $data['photo_path'] = $request->file('photo')->store('employees/photos', 'public');
+            $data['photo_path'] = $this->storePhoto($request->file('photo'));
         }
 
         $employee->update($data);
@@ -124,7 +125,7 @@ class EmployeeController extends Controller
             ],
             'phone' => ['nullable', 'string', 'max:32'],
             'bio' => ['nullable', 'string', 'max:2000'],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['nullable', 'image', 'max:5120'],
             'location_id' => ['nullable', 'exists:locations,id'],
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'instagram_url' => ['nullable', 'url', 'max:255'],
@@ -160,5 +161,18 @@ class EmployeeController extends Controller
             'linkedin_url' => $employee->linkedin_url,
             'youtube_url' => $employee->youtube_url,
         ];
+    }
+
+    private function storePhoto(\Illuminate\Http\UploadedFile $file): string
+    {
+        $filename = 'employees/photos/' . \Illuminate\Support\Str::uuid() . '.jpg';
+
+        $image = Image::read($file)
+            ->cover(500, 500)
+            ->toJpeg(quality: 90);
+
+        Storage::disk('public')->put($filename, $image);
+
+        return $filename;
     }
 }
