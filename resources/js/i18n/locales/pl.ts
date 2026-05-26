@@ -14,6 +14,7 @@ export default {
         settings: 'Ustawienia',
     },
     nav: {
+        platform: 'Platforma',
         employees: 'Pracownicy',
         locations: 'Lokalizacje',
         settings: 'Ustawienia globalne',
@@ -81,6 +82,7 @@ export default {
         fields: {
             company_name: 'Nazwa firmy',
             vat_id: 'NIP',
+            qr_color: 'Kolor kodów QR',
         },
     },
     auth: {

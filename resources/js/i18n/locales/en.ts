@@ -14,6 +14,7 @@ export default {
         settings: 'Settings',
     },
     nav: {
+        platform: 'Platform',
         employees: 'Employees',
         locations: 'Locations',
         settings: 'Global settings',
@@ -80,7 +81,7 @@ export default {
         breadcrumb: 'Global settings',
         fields: {
             company_name: 'Company name',
-            vat_id: 'VAT ID / NIP',
+            vat_id: 'VAT ID / NIP', qr_color: 'QR code color',
         },
     },
     auth: {

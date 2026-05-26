@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Location;
+use App\Models\Setting;
 use App\Services\EmailGeneratorService;
 use App\Services\QrCodeService;
 use Illuminate\Http\RedirectResponse;
@@ -54,7 +55,8 @@ class EmployeeController extends Controller
         }
 
         $employee = Employee::create($data);
-        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee)]);
+        $qrColor = Setting::current()->qr_color ?? '#000000';
+        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor)]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee created.')]);
 
@@ -82,6 +84,9 @@ class EmployeeController extends Controller
         }
 
         $employee->update($data);
+
+        $qrColor = Setting::current()->qr_color ?? '#000000';
+        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor)]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee updated.')]);
 

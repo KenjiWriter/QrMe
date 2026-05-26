@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 
 const props = defineProps<{
-    settings: { company_name: string | null; vat_id: string | null };
+    settings: { company_name: string | null; vat_id: string | null; qr_color: string | null };
 }>();
 
 const { t } = useI18n();
@@ -26,6 +26,7 @@ defineOptions({
 const form = useForm({
     company_name: props.settings.company_name ?? '',
     vat_id: props.settings.vat_id ?? '',
+    qr_color: props.settings.qr_color ?? '#000000',
 });
 
 function submit() {
@@ -54,6 +55,25 @@ function submit() {
                 <Label for="vat_id">{{ t('settings.fields.vat_id') }}</Label>
                 <Input id="vat_id" v-model="form.vat_id" required />
                 <InputError :message="form.errors.vat_id" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="qr_color">{{ t('settings.fields.qr_color') }}</Label>
+                <div class="flex items-center gap-3">
+                    <input
+                        id="qr_color"
+                        type="color"
+                        v-model="form.qr_color"
+                        class="h-10 w-14 cursor-pointer rounded-md border border-input bg-background p-1"
+                    />
+                    <Input
+                        v-model="form.qr_color"
+                        class="w-32 font-mono uppercase"
+                        maxlength="7"
+                        pattern="^#[0-9A-Fa-f]{6}$"
+                    />
+                </div>
+                <InputError :message="form.errors.qr_color" />
             </div>
 
             <div>

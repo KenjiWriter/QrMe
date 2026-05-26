@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-    protected $fillable = ['company_name', 'vat_id'];
+    protected $fillable = ['company_name', 'vat_id', 'qr_color'];
 
     /**
      * Get the singleton settings row (creates one if missing).
@@ -16,6 +16,7 @@ class Setting extends Model
         return self::firstOrCreate(['id' => 1], [
             'company_name' => null,
             'vat_id' => null,
+            'qr_color' => '#000000',
         ]);
     }
 }
