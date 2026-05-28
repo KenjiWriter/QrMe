@@ -63,11 +63,12 @@ contact details — without printing paper business cards.
 | Area | Feature |
 |---|---|
 | **Employees** | Create, edit, delete (soft-delete), profile photo, bio, social media links |
-| **QR Codes** | Automatic PNG generation, custom colour, no white border |
-| **Scan tracking** | QR scan counter via `/qr/` endpoint — manual visits to `/p/` are not counted |
+| **QR Codes** | Automatic SVG generation, custom colour per employee or global, eye shape selector (square / round) |
+| **Universal QR Codes** | Standalone QR codes pointing to any URL — quizzes, surveys, landing pages — with logo, colour, and scan tracking |
+| **Scan tracking** | QR scan counter via `/qr/` and `/qr/link/` endpoints — manual URL visits are not counted |
 | **vCard** | Download contact as `.vcf` (vCard 3.0) with full address, phone, and email |
 | **Locations** | Manage company offices assignable to employees |
-| **Global settings** | Company name, VAT ID, QR colour — colour change regenerates all codes |
+| **Global settings** | Company name, VAT ID, global QR colour — colour change only regenerates employees without a custom colour |
 | **Auto email** | Generate employee email from first + last name (`m.smith@company.com`) |
 | **Public business card** | Mobile-first, hero banner, avatar, Google Maps link, social media |
 | **Authentication** | Laravel Fortify: login, password reset, email verification, 2FA |
@@ -101,7 +102,7 @@ You can:
 | **Laravel Fortify** | 1.34 | Authentication (login, password reset, 2FA) |
 | **Inertia.js** | 3.0 | Laravel–Vue bridge, SPA without a REST API |
 | **Laravel Wayfinder** | 0.1 | Type-safe Laravel routes exported to TypeScript |
-| **BaconQrCode** | — | PNG QR code generation with custom colour |
+| **BaconQrCode** | 3.0 | SVG QR code generation — custom colour, eye shapes, logo embedding |
 | **SQLite / MySQL** | — | Database |
 
 ### Frontend
@@ -134,15 +135,17 @@ You can:
 ```
 Browser
     │
-    ├── GET /p/{short_id}         → PublicCardController   → BusinessCard.vue
-    ├── GET /qr/{short_id}        → QrScanController (+1 scan_count → redirect /p/)
-    ├── GET /p/{short_id}/vcard   → VCardService → .vcf download
+    ├── GET /p/{short_id}          → PublicCardController    → BusinessCard.vue
+    ├── GET /qr/{short_id}         → QrScanController (+1 scan_count → redirect /p/)
+    ├── GET /qr/link/{short_id}    → CustomQrScanController (+1 scan_count → redirect to target URL)
+    ├── GET /p/{short_id}/vcard    → VCardService → .vcf download
     │
     └── /admin/*  (authentication required)
-            ├── employees         → EmployeeController
-            ├── locations         → LocationController
-            └── settings          → GlobalSettingsController
-                                       └── QrCodeService (BaconQrCode PNG)
+            ├── employees          → EmployeeController
+            ├── locations          → LocationController
+            ├── qrcodes            → CustomQrController      (universal QR codes)
+            └── settings           → GlobalSettingsController
+                                        └── QrCodeService (BaconQrCode SVG)
 ```
 
 **Inertia.js** removes the need to build a separate REST API — every Laravel controller
@@ -238,7 +241,7 @@ php artisan optimize
 | `MAIL_MAILER` | `log` | Mail driver (`smtp`, `mailgun`, `ses`, `log`) |
 | `FILESYSTEM_DISK` | `local` | `local` or `s3` for photo and QR storage |
 
-> ⚠️ **Important:** `APP_URL` is written directly into each QR code PNG at generation
+> ⚠️ **Important:** `APP_URL` is written directly into each QR code SVG at generation
 > time. Changing the URL after generation requires regenerating all QR codes.
 
 ### First-run checklist
@@ -258,11 +261,20 @@ php artisan optimize
 - Create with optional auto-generated email (`m.smith@company.com`)
 - Profile photo upload (JPEG/PNG, max 2 MB)
 - Social media links: Facebook, Instagram, LinkedIn, YouTube
-- Each employee gets a unique `short_id` and a QR code PNG generated automatically
+- Each employee gets a unique `short_id` and a QR code SVG generated automatically
+- **Per-employee QR colour** — override the global colour for a specific employee; leave blank to inherit the global setting
+- **Eye shape** — choose square or round corner markers per employee
+
+**Universal QR Codes (`/admin/qrcodes`):**
+- Create standalone QR codes that redirect to any URL (surveys, landing pages, etc.)
+- Upload a logo to embed in the centre of the QR code
+- Custom colour and eye shape per code
+- Dedicated scan tracking counter per code
+- Download link for each generated SVG
 
 **Settings → QR colour:**
 - Native colour picker + hex input field (both stay in sync)
-- Saving a new colour automatically regenerates **all** employee QR codes
+- Saving a new colour regenerates QR codes only for employees **without** a custom colour
 
 ### Public business card (`/p/{short_id}`)
 
@@ -276,11 +288,12 @@ Mobile-first page containing:
 ### QR scan tracking
 
 ```
-QR scan → /qr/{short_id} → scan_count++ → redirect to /p/{short_id}
-Manual link visit → /p/{short_id} → counter does NOT increment
+Employee QR scan  → /qr/{short_id}       → scan_count++ → redirect to /p/{short_id}
+Universal QR scan → /qr/link/{short_id}  → scan_count++ → redirect to target URL
+Manual link visit → /p/{short_id}        → counter does NOT increment
 ```
 
-The scan counter is displayed next to each employee in the admin panel.
+The scan counter is displayed next to each employee and each universal QR code in the admin panel.
 
 ---
 
@@ -306,27 +319,38 @@ Tests: 2 skipped, 36 passed (129 assertions)
 qrme/
 ├── app/
 │   ├── Http/Controllers/
-│   │   ├── Admin/                  # EmployeeController, LocationController, GlobalSettingsController
+│   │   ├── Admin/                  # EmployeeController, LocationController,
+│   │   │                           # GlobalSettingsController, CustomQrController
 │   │   ├── PublicCardController.php
-│   │   └── QrScanController.php    # Scan counter endpoint
-│   ├── Models/                     # Employee, Location, Setting, User
+│   │   ├── QrScanController.php    # Employee QR scan endpoint
+│   │   └── CustomQrScanController.php  # Universal QR scan endpoint
+│   ├── Models/                     # Employee, Location, Setting, User, CustomQr
 │   └── Services/
-│       ├── QrCodeService.php       # PNG via BaconQrCode, custom colour, no margin
+│       ├── QrCodeService.php       # SVG via BaconQrCode — colour, eye shape, logo
 │       ├── VCardService.php        # vCard 3.0 .vcf generation
 │       └── EmailGeneratorService.php
-├── database/migrations/            # 8 migrations
+├── database/migrations/            # 10 migrations
 ├── resources/
 │   ├── css/app.css                 # Tailwind v4, CSS variables (orange scheme)
 │   └── js/
 │       ├── i18n/locales/           # pl.ts, en.ts
-│       ├── components/             # AppSidebar, LocaleSwitcher, shadcn/ui
+│       ├── components/
+│       │   ├── admin/
+│       │   │   ├── QrStylePicker.vue   # Reusable colour + eye shape designer
+│       │   │   ├── EmployeeForm.vue
+│       │   │   └── CustomQrForm.vue
+│       │   └── ...                 # AppSidebar, LocaleSwitcher, shadcn/ui
 │       ├── layouts/                # AppLayout, AuthSimpleLayout
 │       └── pages/
-│           ├── admin/              # employees/, locations/, settings/
+│           ├── admin/
+│           │   ├── employees/      # Create, Edit
+│           │   ├── locations/
+│           │   ├── qrcodes/        # Index, Create, Edit
+│           │   └── settings/
 │           ├── auth/               # Login, ForgotPassword, ResetPassword
 │           └── BusinessCard.vue
 ├── routes/
-│   ├── web.php                     # Public routes + /qr/ scan endpoint
+│   ├── web.php                     # Public routes + /qr/ and /qr/link/ endpoints
 │   └── admin.php                   # Auth-protected admin routes
 └── lang/pl.json                    # Server-side flash messages (Polish)
 ```
