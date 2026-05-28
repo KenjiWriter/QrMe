@@ -38,7 +38,8 @@ class GlobalSettingsController extends Controller
 
         if ($colorChanged) {
             $color = $validated['qr_color'];
-            Employee::whereNotNull('qr_code_path')->each(
+            // Only regenerate employees that inherit the global color (no custom color set).
+            Employee::whereNotNull('qr_code_path')->whereNull('qr_color')->each(
                 fn (Employee $employee) => $employee->update([
                     'qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $color),
                 ])

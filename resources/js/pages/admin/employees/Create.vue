@@ -7,6 +7,7 @@ import Heading from '@/components/Heading.vue';
 defineProps<{
     locations: { id: number; name: string }[];
     emailDomain: string;
+    globalQrColor: string;
 }>();
 
 const { t } = useI18n();
@@ -27,6 +28,6 @@ defineOptions({
 
     <div class="flex flex-col gap-6 p-4">
         <Heading variant="small" :title="t('employees.new_title')" :description="t('employees.new_description')" />
-        <EmployeeForm :locations="locations" :email-domain="emailDomain" />
+        <EmployeeForm :locations="locations" :email-domain="emailDomain" :global-qr-color="globalQrColor" />
     </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Building2, Settings2, Users } from 'lucide-vue-next';
+import { Building2, QrCode, Settings2, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AppLogo from '@/components/AppLogo.vue';
@@ -30,6 +30,11 @@ const mainNavItems = computed<NavItem[]>(() => [
         title: t('nav.locations'),
         href: '/admin/locations',
         icon: Building2,
+    },
+    {
+        title: t('nav.qrcodes'),
+        href: '/admin/qrcodes',
+        icon: QrCode,
     },
     {
         title: t('nav.settings'),

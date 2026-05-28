@@ -39,6 +39,7 @@ class EmployeeController extends Controller
         return Inertia::render('admin/employees/Create', [
             'locations' => Location::orderBy('name')->get(['id', 'name']),
             'emailDomain' => config('app.domain', env('APP_DOMAIN', 'example.pl')),
+            'globalQrColor' => Setting::current()->qr_color ?? '#000000',
         ]);
     }
 
@@ -55,8 +56,9 @@ class EmployeeController extends Controller
         }
 
         $employee = Employee::create($data);
-        $qrColor = Setting::current()->qr_color ?? '#000000';
-        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor)]);
+        $qrColor = $employee->qr_color ?? Setting::current()->qr_color ?? '#000000';
+        $qrEyeShape = $employee->qr_eye_shape ?? 'square';
+        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor, eyeShape: $qrEyeShape)]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee created.')]);
 
@@ -69,6 +71,7 @@ class EmployeeController extends Controller
             'employee' => $this->transform($employee->load('location')),
             'locations' => Location::orderBy('name')->get(['id', 'name']),
             'emailDomain' => config('app.domain', env('APP_DOMAIN', 'example.pl')),
+            'globalQrColor' => Setting::current()->qr_color ?? '#000000',
         ]);
     }
 
@@ -85,8 +88,9 @@ class EmployeeController extends Controller
 
         $employee->update($data);
 
-        $qrColor = Setting::current()->qr_color ?? '#000000';
-        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor)]);
+        $qrColor = $employee->qr_color ?? Setting::current()->qr_color ?? '#000000';
+        $qrEyeShape = $employee->qr_eye_shape ?? 'square';
+        $employee->update(['qr_code_path' => $this->qrCodeService->generateForEmployee($employee, color: $qrColor, eyeShape: $qrEyeShape)]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Employee updated.')]);
 
@@ -125,6 +129,8 @@ class EmployeeController extends Controller
             'phone' => ['nullable', 'string', 'max:32'],
             'bio' => ['nullable', 'string', 'max:2000'],
             'photo' => ['nullable', 'image', 'max:5120'],
+            'qr_color' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'qr_eye_shape' => ['nullable', 'string', 'in:square,round,dots'],
             'location_id' => ['nullable', 'exists:locations,id'],
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'instagram_url' => ['nullable', 'url', 'max:255'],
@@ -153,6 +159,8 @@ class EmployeeController extends Controller
             'qr_code_url' => $employee->qr_code_url,
             'public_url' => $employee->public_url,
             'scan_count' => $employee->scan_count ?? 0,
+            'qr_color' => $employee->qr_color,
+            'qr_eye_shape' => $employee->qr_eye_shape,
             'location_id' => $employee->location_id,
             'location' => $employee->location,
             'facebook_url' => $employee->facebook_url,

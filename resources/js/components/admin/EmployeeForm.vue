@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import QrStylePicker from '@/components/admin/QrStylePicker.vue';
 
 type LocationOption = { id: number; name: string };
 
@@ -21,6 +22,8 @@ type EmployeeData = {
     bio: string | null;
     photo_url?: string | null;
     location_id: number | null;
+    qr_color: string | null;
+    qr_eye_shape: string | null;
     facebook_url: string | null;
     instagram_url: string | null;
     linkedin_url: string | null;
@@ -30,6 +33,7 @@ type EmployeeData = {
 const props = defineProps<{
     locations: LocationOption[];
     emailDomain: string;
+    globalQrColor: string;
     employee?: EmployeeData | null;
 }>();
 
@@ -44,6 +48,8 @@ const form = useForm({
     bio: props.employee?.bio ?? '',
     photo: null as File | null,
     location_id: props.employee?.location_id ?? null,
+    qr_color: props.employee?.qr_color ?? null,
+    qr_eye_shape: props.employee?.qr_eye_shape ?? null,
     facebook_url: props.employee?.facebook_url ?? '',
     instagram_url: props.employee?.instagram_url ?? '',
     linkedin_url: props.employee?.linkedin_url ?? '',
@@ -166,6 +172,15 @@ const { t } = useI18n();
                 <InputError :message="form.errors.location_id" />
             </div>
         </div>
+
+        <!-- QR style -->
+        <QrStylePicker
+            v-model:color="form.qr_color"
+            v-model:eye-shape="form.qr_eye_shape"
+            :global-color="globalQrColor"
+            :color-error="form.errors.qr_color"
+            :eye-shape-error="form.errors.qr_eye_shape"
+        />
 
         <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <legend class="px-2 text-sm font-medium">{{ t('employees.fields.social_links') }}</legend>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CustomQrController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\GlobalSettingsController;
 use App\Http\Controllers\Admin\LocationController;
@@ -20,4 +21,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
     Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+
+    Route::get('qrcodes', [CustomQrController::class, 'index'])->name('qrcodes.index');
+    Route::get('qrcodes/create', [CustomQrController::class, 'create'])->name('qrcodes.create');
+    Route::post('qrcodes', [CustomQrController::class, 'store'])->name('qrcodes.store');
+    Route::get('qrcodes/{customQr}/edit', [CustomQrController::class, 'edit'])->name('qrcodes.edit');
+    Route::put('qrcodes/{customQr}', [CustomQrController::class, 'update'])->name('qrcodes.update');
+    Route::delete('qrcodes/{customQr}', [CustomQrController::class, 'destroy'])->name('qrcodes.destroy');
 });
+

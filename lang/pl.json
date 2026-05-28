@@ -5,5 +5,8 @@
     "Location created.": "Lokalizacja została utworzona.",
     "Location updated.": "Lokalizacja została zaktualizowana.",
     "Location deleted.": "Lokalizacja została usunięta.",
-    "Settings updated.": "Ustawienia zostały zaktualizowane."
+    "Settings updated.": "Ustawienia zostały zaktualizowane.",
+    "QR code created.": "Kod QR został utworzony.",
+    "QR code updated.": "Kod QR został zaktualizowany.",
+    "QR code deleted.": "Kod QR został usunięty."
 }

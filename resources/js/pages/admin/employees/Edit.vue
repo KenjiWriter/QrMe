@@ -17,6 +17,8 @@ const props = defineProps<{
         bio: string | null;
         photo_url: string | null;
         qr_code_url: string | null;
+        qr_color: string | null;
+        qr_eye_shape: string | null;
         location_id: number | null;
         facebook_url: string | null;
         instagram_url: string | null;
@@ -26,6 +28,7 @@ const props = defineProps<{
     };
     locations: { id: number; name: string }[];
     emailDomain: string;
+    globalQrColor: string;
 }>();
 
 const { t } = useI18n();
@@ -58,6 +61,6 @@ defineOptions({
                 </a>
             </div>
         </div>
-        <EmployeeForm :locations="locations" :email-domain="emailDomain" :employee="employee" />
+        <EmployeeForm :locations="locations" :email-domain="emailDomain" :employee="employee" :global-qr-color="globalQrColor" />
     </div>
 </template>
