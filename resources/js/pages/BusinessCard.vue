@@ -6,6 +6,7 @@ import {
     Briefcase,
     ChevronRight,
     Facebook,
+    Globe,
     Instagram,
     Linkedin,
     Mail,
@@ -22,8 +23,10 @@ type Employee = {
     last_name: string;
     full_name: string;
     job_title: string;
+    job_title_en?: string | null;
     email: string;
     phone: string | null;
+    website_url?: string | null;
     bio: string | null;
     photo_url: string | null;
     facebook_url: string | null;
@@ -39,7 +42,14 @@ const props = defineProps<{
     vcardUrl: string;
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+
+const displayJobTitle = computed(() => {
+    if (locale.value === 'en' && props.employee.job_title_en?.trim()) {
+        return props.employee.job_title_en.trim();
+    }
+    return props.employee.job_title;
+});
 
 const initials = computed(() =>
     (props.employee.first_name.charAt(0) + props.employee.last_name.charAt(0)).toUpperCase(),
@@ -84,10 +94,10 @@ const socials = computed(() =>
                     {{ props.employee.full_name }}
                 </h1>
                 <p
-                    v-if="props.employee.job_title"
+                    v-if="displayJobTitle"
                     class="mt-1 text-sm text-slate-700 text-center px-6 leading-relaxed"
                 >
-                    {{ props.employee.job_title }}
+                    {{ displayJobTitle }}
                 </p>
             </div>
 
@@ -104,7 +114,7 @@ const socials = computed(() =>
             </div>
 
             <!-- Quick-action icon buttons sitting on the wave -->
-            <div class="absolute -bottom-7 inset-x-0 flex justify-center gap-5 z-10">
+            <div class="absolute -bottom-7 inset-x-0 flex justify-center gap-4 z-10">
                 <a
                     v-if="props.employee.phone"
                     :href="`tel:${props.employee.phone}`"
@@ -119,6 +129,16 @@ const socials = computed(() =>
                     class="h-14 w-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
                 >
                     <Mail class="h-5 w-5" />
+                </a>
+                <a
+                    v-if="props.employee.website_url"
+                    :href="props.employee.website_url"
+                    target="_blank"
+                    rel="noopener"
+                    :aria-label="t('employees.fields.website')"
+                    class="h-14 w-14 rounded-full bg-white shadow-md flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
+                >
+                    <Globe class="h-5 w-5" />
                 </a>
                 <a
                     v-if="props.employee.location"
@@ -182,6 +202,22 @@ const socials = computed(() =>
                     </div>
                 </a>
 
+                <a
+                    v-if="props.employee.website_url"
+                    :href="props.employee.website_url"
+                    target="_blank"
+                    rel="noopener"
+                    class="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition"
+                >
+                    <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none">
+                        <Globe class="h-4 w-4 text-slate-500" />
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">{{ t('employees.fields.website') }}</div>
+                        <div class="text-sm font-medium text-slate-900 break-all">{{ props.employee.website_url }}</div>
+                    </div>
+                </a>
+
                 <div v-if="props.employee.location" class="flex items-start gap-4 px-4 py-4">
                     <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center flex-none mt-0.5">
                         <MapPin class="h-4 w-4 text-slate-500" />
@@ -208,7 +244,7 @@ const socials = computed(() =>
                     </div>
                     <div>
                         <div class="text-xs text-slate-500">{{ props.company.name }}</div>
-                        <div class="text-sm font-medium text-slate-900">{{ props.employee.job_title }}</div>
+                        <div class="text-sm font-medium text-slate-900">{{ displayJobTitle }}</div>
                     </div>
                 </div>
             </div>

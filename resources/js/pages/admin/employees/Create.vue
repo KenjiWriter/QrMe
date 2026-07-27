@@ -8,6 +8,13 @@ defineProps<{
     locations: { id: number; name: string }[];
     emailDomain: string;
     globalQrColor: string;
+    defaults?: {
+        website_url?: string | null;
+        facebook_url?: string | null;
+        instagram_url?: string | null;
+        linkedin_url?: string | null;
+        youtube_url?: string | null;
+    } | null;
 }>();
 
 const { t } = useI18n();
@@ -28,6 +35,11 @@ defineOptions({
 
     <div class="flex flex-col gap-6 p-4">
         <Heading variant="small" :title="t('employees.new_title')" :description="t('employees.new_description')" />
-        <EmployeeForm :locations="locations" :email-domain="emailDomain" :global-qr-color="globalQrColor" />
+        <EmployeeForm
+            :locations="locations"
+            :email-domain="emailDomain"
+            :global-qr-color="globalQrColor"
+            :defaults="defaults"
+        />
     </div>
 </template>

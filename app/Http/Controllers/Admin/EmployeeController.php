@@ -36,10 +36,19 @@ class EmployeeController extends Controller
 
     public function create(): Response
     {
+        $settings = Setting::current();
+
         return Inertia::render('admin/employees/Create', [
             'locations' => Location::orderBy('name')->get(['id', 'name']),
             'emailDomain' => config('app.domain', env('APP_DOMAIN', 'example.pl')),
-            'globalQrColor' => Setting::current()->qr_color ?? '#000000',
+            'globalQrColor' => $settings->qr_color ?? '#000000',
+            'defaults' => [
+                'website_url' => $settings->default_website_url,
+                'facebook_url' => $settings->default_facebook_url,
+                'instagram_url' => $settings->default_instagram_url,
+                'linkedin_url' => $settings->default_linkedin_url,
+                'youtube_url' => $settings->default_youtube_url,
+            ],
         ]);
     }
 
@@ -120,6 +129,7 @@ class EmployeeController extends Controller
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'job_title' => ['required', 'string', 'max:255'],
+            'job_title_en' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'nullable',
                 'email',
@@ -127,6 +137,7 @@ class EmployeeController extends Controller
                 Rule::unique('employees', 'email')->ignore($employee?->id),
             ],
             'phone' => ['nullable', 'string', 'max:32'],
+            'website_url' => ['nullable', 'url', 'max:255'],
             'bio' => ['nullable', 'string', 'max:2000'],
             'photo' => ['nullable', 'image', 'max:5120'],
             'qr_color' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
@@ -152,8 +163,10 @@ class EmployeeController extends Controller
             'last_name' => $employee->last_name,
             'full_name' => $employee->full_name,
             'job_title' => $employee->job_title,
+            'job_title_en' => $employee->job_title_en,
             'email' => $employee->email,
             'phone' => $employee->phone,
+            'website_url' => $employee->website_url,
             'bio' => $employee->bio,
             'photo_url' => $employee->photo_url,
             'qr_code_url' => $employee->qr_code_url,

@@ -37,7 +37,7 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => \App\Models\Setting::current()->app_name ?? config('app.name', 'Reganta'),
             'auth' => [
                 'user' => $request->user(),
             ],

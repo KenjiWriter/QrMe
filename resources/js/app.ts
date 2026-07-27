@@ -7,7 +7,7 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
 import { i18n } from '@/i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Reganta';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

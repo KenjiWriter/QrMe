@@ -1,1 +1,0 @@
-import{Bt as e,Dt as t,G as n,Vt as r,dt as i,ht as a,wt as o}from"./app-mNijn8Or.js";var s=a({__name:`DialogFooter`,props:{class:{type:[Boolean,null,String,Object,Array]}},setup(a){let s=a;return(a,c)=>(o(),i(`div`,{"data-slot":`dialog-footer`,class:r(e(n)(`flex flex-col-reverse gap-2 sm:flex-row sm:justify-end`,s.class))},[t(a.$slots,`default`)],2))}});export{s as t};

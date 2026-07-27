@@ -27,9 +27,15 @@ class GlobalSettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'app_name' => ['required', 'string', 'max:255'],
             'company_name' => ['required', 'string', 'max:255'],
             'vat_id' => ['required', 'string', 'max:32'],
             'qr_color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'default_website_url' => ['nullable', 'url', 'max:255'],
+            'default_facebook_url' => ['nullable', 'url', 'max:255'],
+            'default_instagram_url' => ['nullable', 'url', 'max:255'],
+            'default_linkedin_url' => ['nullable', 'url', 'max:255'],
+            'default_youtube_url' => ['nullable', 'url', 'max:255'],
         ]);
 
         $settings = Setting::current();

@@ -60,6 +60,10 @@ class VCardService
             $lines[] = "PHOTO;ENCODING=b;TYPE=JPEG:\r\n ".$folded;
         }
 
+        if ($employee->website_url) {
+            $lines[] = 'URL;TYPE=WORK:'.$employee->website_url;
+        }
+
         foreach (array_filter([
             $employee->facebook_url,
             $employee->instagram_url,
@@ -85,7 +89,7 @@ class VCardService
 
         return response($vcard, 200, [
             'Content-Type' => 'text/vcard; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
             'Content-Length' => (string) strlen($vcard),
         ]);
     }

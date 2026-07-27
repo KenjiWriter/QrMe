@@ -11,14 +11,24 @@ import QrStylePicker from '@/components/admin/QrStylePicker.vue';
 
 type LocationOption = { id: number; name: string };
 
+type DefaultLinks = {
+    website_url?: string | null;
+    facebook_url?: string | null;
+    instagram_url?: string | null;
+    linkedin_url?: string | null;
+    youtube_url?: string | null;
+};
+
 type EmployeeData = {
     id?: number;
     short_id?: string;
     first_name: string;
     last_name: string;
     job_title: string;
+    job_title_en?: string | null;
     email: string | null;
     phone: string | null;
+    website_url?: string | null;
     bio: string | null;
     photo_url?: string | null;
     location_id: number | null;
@@ -35,6 +45,7 @@ const props = defineProps<{
     emailDomain: string;
     globalQrColor: string;
     employee?: EmployeeData | null;
+    defaults?: DefaultLinks | null;
 }>();
 
 const isEdit = computed(() => !!props.employee?.id);
@@ -43,17 +54,19 @@ const form = useForm({
     first_name: props.employee?.first_name ?? '',
     last_name: props.employee?.last_name ?? '',
     job_title: props.employee?.job_title ?? '',
+    job_title_en: props.employee?.job_title_en ?? '',
     email: props.employee?.email ?? '',
     phone: props.employee?.phone ?? '',
+    website_url: props.employee?.website_url ?? (isEdit.value ? '' : (props.defaults?.website_url ?? '')),
     bio: props.employee?.bio ?? '',
     photo: null as File | null,
     location_id: props.employee?.location_id ?? null,
     qr_color: props.employee?.qr_color ?? null,
     qr_eye_shape: props.employee?.qr_eye_shape ?? null,
-    facebook_url: props.employee?.facebook_url ?? '',
-    instagram_url: props.employee?.instagram_url ?? '',
-    linkedin_url: props.employee?.linkedin_url ?? '',
-    youtube_url: props.employee?.youtube_url ?? '',
+    facebook_url: props.employee?.facebook_url ?? (isEdit.value ? '' : (props.defaults?.facebook_url ?? '')),
+    instagram_url: props.employee?.instagram_url ?? (isEdit.value ? '' : (props.defaults?.instagram_url ?? '')),
+    linkedin_url: props.employee?.linkedin_url ?? (isEdit.value ? '' : (props.defaults?.linkedin_url ?? '')),
+    youtube_url: props.employee?.youtube_url ?? (isEdit.value ? '' : (props.defaults?.youtube_url ?? '')),
     _method: isEdit.value ? 'put' : 'post',
 });
 
@@ -104,7 +117,8 @@ const { t } = useI18n();
 
 <template>
     <form @submit.prevent="submit" class="grid max-w-3xl gap-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Row 1: First & Last Name -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <div class="grid gap-2">
                 <Label for="first_name">{{ t('employees.fields.first_name') }}</Label>
                 <Input id="first_name" v-model="form.first_name" required autofocus />
@@ -117,13 +131,22 @@ const { t } = useI18n();
             </div>
         </div>
 
-        <div class="grid gap-2">
-            <Label for="job_title">{{ t('employees.fields.job_title') }}</Label>
-            <Input id="job_title" v-model="form.job_title" required />
-            <InputError :message="form.errors.job_title" />
+        <!-- Row 2: Job Title PL & EN -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div class="grid gap-2">
+                <Label for="job_title">{{ t('employees.fields.job_title') }}</Label>
+                <Input id="job_title" v-model="form.job_title" required />
+                <InputError :message="form.errors.job_title" />
+            </div>
+            <div class="grid gap-2">
+                <Label for="job_title_en">{{ t('employees.fields.job_title_en') }}</Label>
+                <Input id="job_title_en" v-model="form.job_title_en" placeholder="e.g. Sales Manager" />
+                <InputError :message="form.errors.job_title_en" />
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Row 3: Email & Phone -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <div class="grid gap-2">
                 <Label for="email">{{ t('employees.fields.email') }}</Label>
                 <Input id="email" type="email" v-model="form.email" @input="onEmailInput" required />
@@ -137,27 +160,12 @@ const { t } = useI18n();
             </div>
         </div>
 
-        <div class="grid gap-2">
-            <Label for="bio">{{ t('employees.fields.bio') }}</Label>
-            <textarea
-                id="bio"
-                v-model="form.bio"
-                rows="3"
-                class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
-            />
-            <InputError :message="form.errors.bio" />
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Row 4: Website URL & Location -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <div class="grid gap-2">
-                <Label for="photo">{{ t('employees.fields.photo') }}</Label>
-                <Input id="photo" type="file" accept="image/*" @change="onPhotoChange" />
-                <img
-                    v-if="employee?.photo_url"
-                    :src="employee.photo_url"
-                    class="mt-2 h-20 w-20 rounded-full object-cover"
-                />
-                <InputError :message="form.errors.photo" />
+                <Label for="website_url">{{ t('employees.fields.website') }}</Label>
+                <Input id="website_url" v-model="form.website_url" placeholder="https://..." />
+                <InputError :message="form.errors.website_url" />
             </div>
             <div class="grid gap-2">
                 <Label for="location_id">{{ t('employees.fields.location') }}</Label>
@@ -173,6 +181,30 @@ const { t } = useI18n();
             </div>
         </div>
 
+        <!-- Row 5: Photo & Bio -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div class="grid gap-2">
+                <Label for="photo">{{ t('employees.fields.photo') }}</Label>
+                <Input id="photo" type="file" accept="image/*" @change="onPhotoChange" />
+                <img
+                    v-if="employee?.photo_url"
+                    :src="employee.photo_url"
+                    class="mt-2 h-20 w-20 rounded-full object-cover border"
+                />
+                <InputError :message="form.errors.photo" />
+            </div>
+            <div class="grid gap-2">
+                <Label for="bio">{{ t('employees.fields.bio') }}</Label>
+                <textarea
+                    id="bio"
+                    v-model="form.bio"
+                    rows="3"
+                    class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
+                />
+                <InputError :message="form.errors.bio" />
+            </div>
+        </div>
+
         <!-- QR style -->
         <QrStylePicker
             v-model:color="form.qr_color"
@@ -182,6 +214,7 @@ const { t } = useI18n();
             :eye-shape-error="form.errors.qr_eye_shape"
         />
 
+        <!-- Social Media Links -->
         <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <legend class="px-2 text-sm font-medium">{{ t('employees.fields.social_links') }}</legend>
             <div class="grid gap-2">
