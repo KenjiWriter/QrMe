@@ -123,7 +123,7 @@ export default {
         vat_id: 'VAT ID',
         location_label: 'Location',
         show_on_map: 'Show on map',
-        find_me_on: 'Find me on',
+        find_me_on: 'Follow us',
     },
     qrcodes: {
         title: 'QR Codes',

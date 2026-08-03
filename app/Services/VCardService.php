@@ -18,6 +18,12 @@ class VCardService
         $settings = Setting::current();
         $location = $employee->location;
 
+        $websiteUrl = $employee->website_url ?: $settings->default_website_url;
+        $facebookUrl = $employee->facebook_url ?: $settings->default_facebook_url;
+        $instagramUrl = $employee->instagram_url ?: $settings->default_instagram_url;
+        $linkedinUrl = $employee->linkedin_url ?: $settings->default_linkedin_url;
+        $youtubeUrl = $employee->youtube_url ?: $settings->default_youtube_url;
+
         $lines = [];
         $lines[] = 'BEGIN:VCARD';
         $lines[] = 'VERSION:3.0';
@@ -36,18 +42,58 @@ class VCardService
             $lines[] = 'TEL;TYPE=CELL,VOICE:'.$employee->phone;
         }
 
+        $itemIndex = 1;
+
         if ($employee->email) {
-            $lines[] = 'EMAIL;TYPE=WORK:'.$employee->email;
+            $lines[] = "item{$itemIndex}.EMAIL;TYPE=INTERNET:".$employee->email;
+            $lines[] = "item{$itemIndex}.X-ABLabel:Mail";
+            $itemIndex++;
         }
+
+        if ($websiteUrl) {
+            $lines[] = "item{$itemIndex}.URL:".$websiteUrl;
+            $lines[] = "item{$itemIndex}.X-ABLabel:www";
+            $itemIndex++;
+        }
+
+        if ($facebookUrl) {
+            $lines[] = "item{$itemIndex}.URL:".$facebookUrl;
+            $lines[] = "item{$itemIndex}.X-ABLabel:Facebook";
+            $itemIndex++;
+        }
+
+        if ($instagramUrl) {
+            $lines[] = "item{$itemIndex}.URL:".$instagramUrl;
+            $lines[] = "item{$itemIndex}.X-ABLabel:Instagram";
+            $itemIndex++;
+        }
+
+        if ($linkedinUrl) {
+            $lines[] = "item{$itemIndex}.URL:".$linkedinUrl;
+            $lines[] = "item{$itemIndex}.X-ABLabel:LinkedIn";
+            $itemIndex++;
+        }
+
+        if ($youtubeUrl) {
+            $lines[] = "item{$itemIndex}.URL:".$youtubeUrl;
+            $lines[] = "item{$itemIndex}.X-ABLabel:YouTube";
+            $itemIndex++;
+        }
+
+        $lines[] = "item{$itemIndex}.URL:".$employee->public_url;
+        $lines[] = "item{$itemIndex}.X-ABLabel:Wizytówka";
+        $itemIndex++;
 
         if ($location) {
             // ADR: PO Box ; Extended ; Street ; City ; Region ; Postal ; Country
             $street = trim($location->street.' '.$location->building_number.
                 ($location->apartment_number ? '/'.$location->apartment_number : ''));
-            $lines[] = 'ADR;TYPE=WORK:;;'.$this->escape($street).';'.
+            $lines[] = "item{$itemIndex}.ADR;TYPE=WORK:;;".$this->escape($street).';'.
                 $this->escape($location->city).';;'.
                 $this->escape($location->postal_code).';'.
                 $this->escape($location->country);
+            $lines[] = "item{$itemIndex}.X-ABLabel:Adres";
+            $itemIndex++;
         }
 
         if ($employee->bio) {
@@ -56,24 +102,11 @@ class VCardService
 
         if ($employee->photo_path && Storage::disk('public')->exists($employee->photo_path)) {
             $photoData = base64_encode((string) Storage::disk('public')->get($employee->photo_path));
-            $folded = rtrim(chunk_split($photoData, 74, "\r\n "), "\r\n ");
-            $lines[] = "PHOTO;ENCODING=b;TYPE=JPEG:\r\n ".$folded;
+            $photoHeader = 'PHOTO;TYPE=JPEG;ENCODING=b:';
+            $fullPhoto = $photoHeader.$photoData;
+            $lines[] = rtrim(chunk_split($fullPhoto, 75, "\r\n "), "\r\n ");
         }
 
-        if ($employee->website_url) {
-            $lines[] = 'URL;TYPE=WORK:'.$employee->website_url;
-        }
-
-        foreach (array_filter([
-            $employee->facebook_url,
-            $employee->instagram_url,
-            $employee->linkedin_url,
-            $employee->youtube_url,
-        ]) as $url) {
-            $lines[] = 'URL:'.$url;
-        }
-
-        $lines[] = 'URL:'.$employee->public_url;
         $lines[] = 'END:VCARD';
 
         return implode("\r\n", $lines)."\r\n";

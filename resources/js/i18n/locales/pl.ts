@@ -123,7 +123,7 @@ export default {
         vat_id: 'NIP',
         location_label: 'Lokalizacja',
         show_on_map: 'Pokaż na mapie',
-        find_me_on: 'Znajdź mnie na',
+        find_me_on: 'Znajdź nas na',
     },
     qrcodes: {
         title: 'Kody QR',

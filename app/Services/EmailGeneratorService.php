@@ -20,7 +20,7 @@ class EmailGeneratorService
         }
 
         $firstLetter = mb_strtolower(Str::ascii(mb_substr($firstName, 0, 1)));
-        $lastSlug = Str::slug(Str::ascii($lastName), '');
+        $lastSlug = Str::slug(Str::ascii($lastName), '-');
         $domain = config('app.domain', env('APP_DOMAIN', 'example.pl'));
 
         return sprintf('%s.%s@%s', $firstLetter, $lastSlug, $domain);

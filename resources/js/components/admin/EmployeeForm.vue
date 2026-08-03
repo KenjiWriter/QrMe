@@ -79,7 +79,12 @@ function stripDiacritics(value: string): string {
 function autoEmail(first: string, last: string): string {
     if (!first || !last) return '';
     const f = stripDiacritics(first.trim()).toLowerCase().charAt(0);
-    const l = stripDiacritics(last.trim()).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const l = stripDiacritics(last.trim())
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
     if (!f || !l) return '';
     return `${f}.${l}@${props.emailDomain}`;
 }

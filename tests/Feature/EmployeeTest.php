@@ -61,7 +61,8 @@ test('vcard download includes website url and inline disposition', function () {
 
     $response->assertOk();
     $response->assertHeader('Content-Disposition', 'inline; filename="piotr-wisniewski.vcf"');
-    expect($response->getContent())->toContain('URL;TYPE=WORK:https://example.org');
+    expect($response->getContent())->toContain('https://example.org');
+    expect($response->getContent())->toContain('X-ABLabel:www');
 });
 
 test('global settings can save default website and social media links', function () {
@@ -84,4 +85,36 @@ test('global settings can save default website and social media links', function
     $settings = Setting::current();
     expect($settings->default_website_url)->toBe('https://testcorp.com');
     expect($settings->default_facebook_url)->toBe('https://facebook.com/testcorp');
+});
+
+test('email generator preserves hyphens for double surnames', function () {
+    $service = new \App\Services\EmailGeneratorService();
+    $email = $service->generate('Anna', 'Kowalska-Koślińska');
+    expect($email)->toBe('a.kowalska-koslinska@' . config('app.domain', env('APP_DOMAIN', 'example.pl')));
+});
+
+test('public card and vcard fall back to global settings when employee links are missing', function () {
+    $settings = Setting::current();
+    $settings->update([
+        'default_website_url' => 'https://global-website.com',
+        'default_facebook_url' => 'https://facebook.com/global',
+    ]);
+
+    $employee = Employee::create([
+        'first_name' => 'Jan',
+        'last_name' => 'Nowak',
+        'job_title' => 'Specjalista',
+        'email' => 'j.nowak@example.com',
+    ]);
+
+    $cardResponse = $this->get('/p/' . $employee->short_id);
+    $cardResponse->assertInertia(fn ($page) => $page
+        ->where('employee.website_url', 'https://global-website.com')
+        ->where('employee.facebook_url', 'https://facebook.com/global')
+    );
+
+    $vcardResponse = $this->get('/p/' . $employee->short_id . '/vcard');
+    expect($vcardResponse->getContent())->toContain('https://global-website.com');
+    expect($vcardResponse->getContent())->toContain('https://facebook.com/global');
+    expect($vcardResponse->getContent())->toContain('X-ABLabel:Facebook');
 });

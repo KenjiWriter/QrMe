@@ -95,7 +95,7 @@ const socials = computed(() =>
                 </h1>
                 <p
                     v-if="displayJobTitle"
-                    class="mt-1 text-sm text-slate-700 text-center px-6 leading-relaxed"
+                    class="mt-1 text-base sm:text-lg font-medium text-slate-900 text-center px-6 leading-relaxed"
                 >
                     {{ displayJobTitle }}
                 </p>
@@ -244,7 +244,7 @@ const socials = computed(() =>
                     </div>
                     <div>
                         <div class="text-xs text-slate-500">{{ props.company.name }}</div>
-                        <div class="text-sm font-medium text-slate-900">{{ displayJobTitle }}</div>
+                        <div class="text-base font-medium text-slate-900">{{ displayJobTitle }}</div>
                     </div>
                 </div>
             </div>
