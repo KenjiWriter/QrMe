@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CustomQr;
 use App\Models\Employee;
+use App\Services\Qr\RoundedEye;
 use BaconQrCode\Common\ErrorCorrectionLevel;
 use BaconQrCode\Renderer\Color\Rgb;
 use BaconQrCode\Renderer\Eye\SimpleCircleEye;
@@ -126,6 +127,7 @@ class QrCodeService
     private function buildEye(string $eyeShape): \BaconQrCode\Renderer\Eye\EyeInterface
     {
         return match ($eyeShape) {
+            'round' => new RoundedEye(),
             'dots'  => SimpleCircleEye::instance(),
             default => SquareEye::instance(),
         };

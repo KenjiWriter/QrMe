@@ -138,7 +138,8 @@ class CustomQrController extends Controller
             'wifi_eap_method'   => [Rule::requiredIf($isWifi && $encryption === 'WPA-EAP'), 'nullable', Rule::in(CustomQr::WIFI_EAP_METHODS)],
             'wifi_eap_identity' => [Rule::requiredIf($isWifi && $encryption === 'WPA-EAP'), 'nullable', 'string', 'max:255'],
             'qr_color'          => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'qr_eye_shape'      => ['required', 'string', 'in:square,round,dots'],
+            // QrStylePicker sends an empty value for "square" (the default).
+            'qr_eye_shape'      => ['nullable', 'string', 'in:square,round,dots'],
             'logo'              => ['nullable', 'image', 'mimes:jpg,jpeg,png,svg+xml', 'max:2048'],
             'remove_logo'       => ['nullable', 'boolean'],
         ]);
@@ -163,6 +164,8 @@ class CustomQrController extends Controller
             $data['wifi_eap_method'] = null;
             $data['wifi_eap_identity'] = null;
         }
+
+        $data['qr_eye_shape'] ??= 'square';
 
         return $data;
     }

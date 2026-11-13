@@ -150,3 +150,43 @@ test('edit page exposes the wifi password for the form', function () {
             ->where('items.0.wifi_password', null)
         );
 });
+
+test('choosing the square eye shape (sent empty by the style picker) saves as square', function () {
+    $user = User::factory()->create();
+
+    // QrStylePicker emits null for "square"; Inertia's FormData turns that into ''.
+    $this->actingAs($user)->post('/admin/qrcodes', [
+        'name' => 'Kwadrat',
+        'type' => 'url',
+        'url' => 'https://example.com',
+        'qr_color' => '#000000',
+        'qr_eye_shape' => '',
+    ])->assertSessionHasNoErrors()->assertRedirect('/admin/qrcodes');
+
+    expect(CustomQr::firstOrFail()->qr_eye_shape)->toBe('square');
+});
+
+test('each eye shape renders differently and round eyes have rounded corners', function () {
+    $svgFor = function (string $shape): string {
+        $qr = CustomQr::create([
+            'name' => $shape,
+            'type' => 'url',
+            'url' => 'https://example.com',
+            'qr_eye_shape' => $shape,
+        ]);
+        $path = app(\App\Services\QrCodeService::class)->generateForCustomQr($qr);
+
+        return Storage::disk('public')->get($path);
+    };
+
+    $square = $svgFor('square');
+    $round = $svgFor('round');
+    $dots = $svgFor('dots');
+
+    // Arc commands ("A<rx> <ry> ...") only appear in curved shapes.
+    $arcs = fn (string $svg) => preg_match_all('/A[\d.]+ [\d.]+ /', $svg);
+
+    expect($arcs($square))->toBe(0)
+        ->and($arcs($round))->toBe(3 * 12)  // 3 eyes × (4 outer + 4 hole + 4 inner corners)
+        ->and($arcs($dots))->toBe(3 * 4);   // 3 eyes × 4 quarter-circles
+});
