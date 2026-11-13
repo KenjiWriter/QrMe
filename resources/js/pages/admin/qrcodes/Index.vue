@@ -2,20 +2,11 @@
 import { Head, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import Heading from '@/components/Heading.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { CustomQrItem } from '@/types';
 
-type QrItem = {
-    id: number;
-    short_id: string;
-    name: string;
-    url: string;
-    qr_color: string;
-    qr_eye_shape: string;
-    logo_url: string | null;
-    qr_code_url: string | null;
-    scan_url: string;
-    scan_count: number;
-};
+type QrItem = CustomQrItem;
 
 const props = defineProps<{ items: QrItem[] }>();
 const { t } = useI18n();
@@ -62,14 +53,22 @@ function destroy(item: QrItem) {
                         class="h-4 w-4 rounded-full border flex-shrink-0"
                         :style="{ backgroundColor: item.qr_color }"
                     />
-                    <div class="min-w-0">
+                    <div class="min-w-0 flex-1">
                         <div class="font-medium truncate">{{ item.name }}</div>
+                        <span
+                            v-if="item.type === 'wifi'"
+                            class="text-xs text-muted-foreground truncate block"
+                        >{{ t('qrcodes.wifi.network_label', { ssid: item.wifi_ssid }) }}</span>
                         <a
-                            :href="item.url"
+                            v-else
+                            :href="item.url ?? undefined"
                             target="_blank"
                             class="text-xs text-muted-foreground hover:underline truncate block"
                         >{{ item.url }}</a>
                     </div>
+                    <Badge variant="secondary" class="shrink-0">
+                        {{ t(`qrcodes.types.${item.type}`) }}
+                    </Badge>
                 </div>
 
                 <!-- QR preview + meta -->
@@ -79,7 +78,10 @@ function destroy(item: QrItem) {
                         <a :href="item.qr_code_url" download class="text-muted-foreground hover:underline">
                             {{ t('qrcodes.download_qr') }}
                         </a>
-                        <span class="text-muted-foreground flex items-center gap-1">
+                        <span v-if="item.type === 'wifi'" class="text-muted-foreground">
+                            {{ t('qrcodes.wifi.encryption') }}: {{ item.wifi_encryption === 'nopass' ? t('qrcodes.wifi.encryption_none') : item.wifi_encryption }}
+                        </span>
+                        <span v-else class="text-muted-foreground flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                             {{ t('qrcodes.scans', { count: item.scan_count }) }}
                         </span>

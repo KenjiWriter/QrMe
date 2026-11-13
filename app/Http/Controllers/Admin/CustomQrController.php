@@ -59,7 +59,7 @@ class CustomQrController extends Controller
     public function edit(CustomQr $customQr): Response
     {
         return Inertia::render('admin/qrcodes/Edit', [
-            'item' => $this->transform($customQr),
+            'item' => $this->transform($customQr, withSecrets: true),
         ]);
     }
 
@@ -114,32 +114,82 @@ class CustomQrController extends Controller
      */
     private function validateData(Request $request, ?CustomQr $customQr = null): array
     {
-        return $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'url'           => ['required', 'url', 'max:2048'],
-            'qr_color'      => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'qr_eye_shape'  => ['required', 'string', 'in:square,round,dots'],
-            'logo'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,svg+xml', 'max:2048'],
-            'remove_logo'   => ['nullable', 'boolean'],
+        $type = $request->input('type', CustomQr::TYPE_URL);
+        $isWifi = $type === CustomQr::TYPE_WIFI;
+        $encryption = $request->input('wifi_encryption');
+
+        $passwordRules = ['nullable', 'string', 'max:255'];
+        if ($isWifi && $encryption !== 'nopass') {
+            $passwordRules[0] = 'required';
+        }
+        if ($isWifi && $encryption === 'WPA') {
+            // WPA/WPA2/WPA3 passphrase: 8–63 characters.
+            $passwordRules = ['required', 'string', 'min:8', 'max:63'];
+        }
+
+        $data = $request->validate([
+            'name'              => ['required', 'string', 'max:255'],
+            'type'              => ['required', 'string', Rule::in(CustomQr::TYPES)],
+            'url'               => [Rule::requiredIf(! $isWifi), 'nullable', 'url', 'max:2048'],
+            'wifi_ssid'         => [Rule::requiredIf($isWifi), 'nullable', 'string', 'max:32'],
+            'wifi_encryption'   => [Rule::requiredIf($isWifi), 'nullable', Rule::in(CustomQr::WIFI_ENCRYPTIONS)],
+            'wifi_password'     => $passwordRules,
+            'wifi_hidden'       => ['nullable', 'boolean'],
+            'wifi_eap_method'   => [Rule::requiredIf($isWifi && $encryption === 'WPA-EAP'), 'nullable', Rule::in(CustomQr::WIFI_EAP_METHODS)],
+            'wifi_eap_identity' => [Rule::requiredIf($isWifi && $encryption === 'WPA-EAP'), 'nullable', 'string', 'max:255'],
+            'qr_color'          => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'qr_eye_shape'      => ['required', 'string', 'in:square,round,dots'],
+            'logo'              => ['nullable', 'image', 'mimes:jpg,jpeg,png,svg+xml', 'max:2048'],
+            'remove_logo'       => ['nullable', 'boolean'],
         ]);
+
+        // Keep only the fields that belong to the chosen type.
+        if ($isWifi) {
+            $data['url'] = null;
+            $data['wifi_hidden'] = $request->boolean('wifi_hidden');
+
+            if ($encryption === 'nopass') {
+                $data['wifi_password'] = null;
+            }
+            if ($encryption !== 'WPA-EAP') {
+                $data['wifi_eap_method'] = null;
+                $data['wifi_eap_identity'] = null;
+            }
+        } else {
+            $data['wifi_ssid'] = null;
+            $data['wifi_password'] = null;
+            $data['wifi_encryption'] = null;
+            $data['wifi_hidden'] = false;
+            $data['wifi_eap_method'] = null;
+            $data['wifi_eap_identity'] = null;
+        }
+
+        return $data;
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function transform(CustomQr $q): array
+    private function transform(CustomQr $q, bool $withSecrets = false): array
     {
         return [
-            'id'           => $q->id,
-            'short_id'     => $q->short_id,
-            'name'         => $q->name,
-            'url'          => $q->url,
-            'qr_color'     => $q->qr_color,
-            'qr_eye_shape' => $q->qr_eye_shape,
-            'logo_url'     => $q->logo_url,
-            'qr_code_url'  => $q->qr_code_url,
-            'scan_url'     => $q->scan_url,
-            'scan_count'   => $q->scan_count,
+            'id'                => $q->id,
+            'short_id'          => $q->short_id,
+            'name'              => $q->name,
+            'type'              => $q->type,
+            'url'               => $q->url,
+            'wifi_ssid'         => $q->wifi_ssid,
+            'wifi_password'     => $withSecrets ? $q->wifi_password : null,
+            'wifi_encryption'   => $q->wifi_encryption,
+            'wifi_hidden'       => (bool) $q->wifi_hidden,
+            'wifi_eap_method'   => $q->wifi_eap_method,
+            'wifi_eap_identity' => $q->wifi_eap_identity,
+            'qr_color'          => $q->qr_color,
+            'qr_eye_shape'      => $q->qr_eye_shape,
+            'logo_url'          => $q->logo_url,
+            'qr_code_url'       => $q->qr_code_url,
+            'scan_url'          => $q->scan_url,
+            'scan_count'        => $q->scan_count,
         ];
     }
 

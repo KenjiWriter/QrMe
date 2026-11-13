@@ -44,15 +44,16 @@ class QrCodeService
 
     /**
      * Generate a QR SVG for a custom QR code and persist it to the public disk.
+     * Link codes encode the tracked /qr/link/{short_id} URL; Wi-Fi codes encode
+     * the network credentials directly ("WIFI:T:WPA;S:...;P:...;;").
      * Returns the storage-relative path (e.g. "custom_qrs/{short_id}.svg").
      */
     public function generateForCustomQr(CustomQr $customQr, int $size = 512): string
     {
-        $url = url('/qr/link/'.$customQr->short_id);
         $path = 'custom_qrs/'.$customQr->short_id.'.svg';
 
         $this->generate(
-            $url,
+            $customQr->qrPayload(),
             $size,
             $customQr->qr_color ?? '#000000',
             $customQr->qr_eye_shape ?? 'square',

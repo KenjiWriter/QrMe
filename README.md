@@ -65,6 +65,7 @@ contact details — without printing paper business cards.
 | **Employees** | Create, edit, delete (soft-delete), profile photo, bio, social media links |
 | **QR Codes** | Automatic SVG generation, custom colour per employee or global, eye shape selector (square / round) |
 | **Universal QR Codes** | Standalone QR codes pointing to any URL — quizzes, surveys, landing pages — with logo, colour, and scan tracking |
+| **Wi-Fi QR Codes** | QR codes that join a Wi-Fi network on scan (WPA/WPA2/WPA3, WEP, WPA-EAP, open, hidden networks), with a live phone preview; password encrypted at rest |
 | **Scan tracking** | QR scan counter via `/qr/` and `/qr/link/` endpoints — manual URL visits are not counted |
 | **vCard** | Download contact as `.vcf` (vCard 3.0) with full address, phone, and email |
 | **Locations** | Manage company offices assignable to employees |
